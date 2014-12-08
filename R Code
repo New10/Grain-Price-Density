@@ -42,9 +42,19 @@ Month<-seq.Date(as.Date("1947-01-01"), by="1 month", length.out=815)
 ###################################################
 # Real v Nominal
 ###################################################
-
 df<-data.frame(Month,comm=factor(rep(c("Corn"),each=815)),Price=Corn, Real=R.Corn, Era=Era, Year=Year)
 
+plot1<-ggplot(df, aes(x = Month)) + 
+  geom_line(aes(y = Price), colour="blue", size=.5) + ylim(0,12)+
+  geom_line(aes(y = Real), colour = "red4", size=.5) + xlab("Year")+ylab("Price $/bu.") +ggtitle("Real and Nominal Price of Illinois Corn Price \n 1947-2014 (1982-1984 = 100)") + theme(axis.text.y=element_text(size = rel(2), colour = "black"), axis.text.x=element_text(size = rel(2), colour = "black"), axis.title.x=element_text(size = rel(2)), axis.title.y=element_text(size = rel(2)), plot.title=element_text(size=rel(2)))
+
+plot2<-ggplot(df, aes(x = Month)) + 
+  geom_smooth(aes(y = Price), colour="blue", size=1) + ylim(0,12)+
+  geom_smooth(aes(y = Real), colour = "red4", size=1) + xlab("Year")+ylab("Price $/bu.") +ggtitle("Real and Nominal Price of Illinois Corn Price \n 1947-2014 (1982-1984 = 100)") + theme(axis.text.y=element_text(size = rel(2), colour = "black"), axis.text.x=element_text(size = rel(2), colour = "black"), axis.title.x=element_text(size = rel(2)), axis.title.y=element_text(size = rel(2)), plot.title=element_text(size=rel(2)))
+
+theplot<-arrangeGrob(plot1, plot2, ncol=2)
+
+theplot
 
 ###################################################
 # Corn by Era
