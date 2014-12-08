@@ -16,7 +16,7 @@ library("animation")
 library("sm")
 library('reshape2')
 
-setwd('C:/Users/jcnewt/Dropbox/2014-2015 Presentations/IFES 2015')
+setwd('')
 
 ###################################################
 # Importing Data
