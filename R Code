@@ -1,0 +1,178 @@
+Grain-Price-Density
+===================
+
+###########################
+# File: Grain Price Density Plots
+# John Newton 
+###########################
+
+#Libraries
+library("XML")
+library("ggplot2")
+library("stringr")
+library("plyr")
+library("gridExtra")
+library("animation")
+library("sm")
+library('reshape2')
+
+setwd('C:/Users/jcnewt/Dropbox/2014-2015 Presentations/IFES 2015')
+
+###################################################
+# Importing Data
+###################################################
+
+#Density Chart
+
+Grains<-read.csv('Grain Prices.csv', header=TRUE)
+names(Grains)
+attach(Grains)
+
+Date<-(Grains[,1])
+Corn<-ts(Grains[,2])
+Era<-(Grains[,5])
+Year<-(Grains[,6])
+CPI<-(Grains[,7])
+R.Corn<-Corn/CPI*100
+R.Soybean<-Soybeans/CPI*100
+R.Wheat<-Wheat/CPI*100
+Month<-seq.Date(as.Date("1947-01-01"), by="1 month", length.out=815)
+
+
+###################################################
+# Real v Nominal
+###################################################
+
+df<-data.frame(Month,comm=factor(rep(c("Corn"),each=815)),Price=Corn, Real=R.Corn, Era=Era, Year=Year)
+
+
+###################################################
+# Corn by Era
+###################################################
+
+
+df<-data.frame(Month,comm=factor(rep(c("Corn"),each=815)),Price=Corn, Era=Era, Year=Year)
+plot2<-ggplot(df, aes(x=Price, fill=Era)) + guides(fill=FALSE)+ geom_density(alpha=.3) +theme(axis.text.x = element_text(angle = 0, hjust = 1))+ theme(axis.text.y=element_text(size = rel(2), colour = "black"), axis.text.x=element_text(size = rel(2), colour = "black"), axis.title.x=element_text(size = rel(2)), axis.title.y=element_text(size = rel(2)), plot.title=element_text(size=rel(2))) +xlab("Price $/bu.")+ylab("Density") +ggtitle("Density Plots of Empirical Illinois Corn Price \n 1947-2014") 
+
+theplot<-arrangeGrob(plot2, ncol=1)
+
+theplot
+
+
+
+###################################################
+# Corn by Era Real v Nominal
+###################################################
+
+
+df<-data.frame(Month,comm=factor(rep(c("Corn"),each=815)),Price=Corn, Real=R.Corn, Era=Era, Year=Year)
+
+plot1<-ggplot(df, aes(x=Price, fill=Era)) + geom_density(alpha=.3) +theme(axis.text.x = element_text(angle = 0, hjust = 1))+ theme(axis.text.y=element_text(size = rel(2), colour = "black"), axis.text.x=element_text(size = rel(2), colour = "black"), axis.title.x=element_text(size = rel(2)), axis.title.y=element_text(size = rel(2)), plot.title=element_text(size=rel(2))) +xlab("Price $/bu.")+ylab("Density") +ggtitle("Density Plots of Nomiinal Empirical Illinois Corn Price \n 1947-2014 (82-84=100)") 
+plot2<-ggplot(df, aes(x=Real, fill=Era)) + geom_density(alpha=.3) +theme(axis.text.x = element_text(angle = 0, hjust = 1))+ theme(axis.text.y=element_text(size = rel(2), colour = "black"), axis.text.x=element_text(size = rel(2), colour = "black"), axis.title.x=element_text(size = rel(2)), axis.title.y=element_text(size = rel(2)), plot.title=element_text(size=rel(2))) +xlab("Price $/bu.")+ylab("Density") +ggtitle("Density Plots of Real Empirical Illinois Corn Price \n 1947-2014 (82-84=100)") 
+
+theplot<-arrangeGrob(plot1,plot2, ncol=2)
+
+theplot
+
+plot2 #Real Prices
+
+
+###################################
+# Grain Price Animations
+###################################
+
+
+saveGIF({
+  for(i in 1947:2060){
+    
+    df<-data.frame(Month,comm=factor(rep(c("Corn"),each=815)),Price=Corn, Real=R.Corn, Era=Era, Year=Year)
+    df<-df[which(df$Year <=i), ] #Filter the year for GIF loop
+    plot1<-ggplot(df, aes(x=Price, fill=Era)) +ylim(0,2.5) +xlim(1,8) + geom_density(alpha=.3) +theme(axis.text.x = element_text(angle = 0, hjust = 1))+ theme(axis.text.y=element_text(size = rel(2), colour = "black"), axis.text.x=element_text(size = rel(2), colour = "black"), axis.title.x=element_text(size = rel(2)), axis.title.y=element_text(size = rel(2)), plot.title=element_text(size=rel(2))) +xlab("Corn Price $/bu.")+ylab("Density") +ggtitle("Density Plots of Empirical Illinois Corn Price by Era \n 1947-2014") 
+    print(plot1)
+    #+ guides(fill=FALSE)  
+    
+  }
+}, movie.name = "AllEraCorn.gif", img.name = "Rplot", convert = "convert", 
+cmd.fun = system, clean = TRUE, interval = .5, ani.width = 1200, ani.height = 600
+)
+
+
+saveGIF({
+  for(i in 1947:2060){
+    
+    df<-data.frame(Month,comm=factor(rep(c("Corn"),each=815)),Price=Corn, Real=R.Corn, Era=Era, Year=Year)
+    df<-df[which(df$Year <=i & df$Era !="New Era"), ] #Filter the year for GIF loop
+    plot1<-ggplot(df, aes(x=Price, fill=Era)) +ylim(0,2.5) +xlim(1,8) + geom_density(alpha=.3) +theme(axis.text.x = element_text(angle = 0, hjust = 1))+ theme(axis.text.y=element_text(size = rel(2), colour = "black"), axis.text.x=element_text(size = rel(2), colour = "black"), axis.title.x=element_text(size = rel(2)), axis.title.y=element_text(size = rel(2)), plot.title=element_text(size=rel(2))) +xlab("Corn Price $/bu.")+ylab("Density") +ggtitle("Density Plots of Empirical Illinois Corn Price by Era \n 1947-2006") 
+    print(plot1)
+    #+ guides(fill=FALSE)  
+    
+  }
+}, movie.name = "PreviousErasCorn.gif", img.name = "Rplot", convert = "convert", 
+cmd.fun = system, clean = TRUE, interval = .5, ani.width = 1200, ani.height = 600
+)
+
+
+saveGIF({
+  for(i in 1973:2060){
+    
+    df<-data.frame(Month,comm=factor(rep(c("Corn"),each=815)),Price=Corn, Real=R.Corn, Era=Era, Year=Year)
+    df<-df[which(df$Year <=i & df$Era != "1947 - 1973"), ] #Filter the year for GIF loop
+    plot1<-ggplot(df, aes(x=Price, fill=Era)) +ylim(0,2.5)  +xlim(1,8) + geom_density(alpha=.3) +theme(axis.text.x = element_text(angle = 0, hjust = 1))+ theme(axis.text.y=element_text(size = rel(2), colour = "black"), axis.text.x=element_text(size = rel(2), colour = "black"), axis.title.x=element_text(size = rel(2)), axis.title.y=element_text(size = rel(2)), plot.title=element_text(size=rel(2))) +xlab("Corn Price $/bu.")+ylab("Density") +ggtitle("Density Plots of Empirical Illinois Corn Price by Era \n 1973-2014") 
+    print(plot1)
+    #+ guides(fill=FALSE)  
+    
+  }
+}, movie.name = "NewEraCorn.gif", img.name = "Rplot", convert = "convert", 
+cmd.fun = system, clean = TRUE, interval = .5, ani.width = 1200, ani.height = 600
+)
+
+
+
+
+saveGIF({
+  for(i in 1947:2060){
+    
+    df<-data.frame(Month,comm=factor(rep(c("Corn"),each=815)),Price=Corn, Real=R.Corn, Era=Era, Year=Year)
+    df<-df[which(df$Year <=i), ] #Filter the year for GIF loop
+    plot1<-ggplot(df, aes(x=Real, fill=Era)) +ylim(0,3) +xlim(1,8) + geom_density(alpha=.3) +theme(axis.text.x = element_text(angle = 0, hjust = 1))+ theme(axis.text.y=element_text(size = rel(2), colour = "black"), axis.text.x=element_text(size = rel(2), colour = "black"), axis.title.x=element_text(size = rel(2)), axis.title.y=element_text(size = rel(2)), plot.title=element_text(size=rel(2))) +xlab("Corn Price $/bu.")+ylab("Density") +ggtitle("Density Plots of Real Illinois Corn Price by Era \n 1947-2014 (82-84=100)") 
+    print(plot1)
+    #+ guides(fill=FALSE)  
+    
+  }
+}, movie.name = "RAllEraCorn.gif", img.name = "Rplot", convert = "convert", 
+cmd.fun = system, clean = TRUE, interval = .5, ani.width = 1200, ani.height = 600
+)
+
+
+saveGIF({
+  for(i in 1947:2060){
+    
+    df<-data.frame(Month,comm=factor(rep(c("Corn"),each=815)),Price=Corn, Real=R.Corn, Era=Era, Year=Year)
+    df<-df[which(df$Year <=i & df$Era !="New Era"), ] #Filter the year for GIF loop
+    plot1<-ggplot(df, aes(x=Real, fill=Era)) +ylim(0,3) +xlim(1,8) + geom_density(alpha=.3) +theme(axis.text.x = element_text(angle = 0, hjust = 1))+ theme(axis.text.y=element_text(size = rel(2), colour = "black"), axis.text.x=element_text(size = rel(2), colour = "black"), axis.title.x=element_text(size = rel(2)), axis.title.y=element_text(size = rel(2)), plot.title=element_text(size=rel(2))) +xlab("Corn Price $/bu.")+ylab("Density") +ggtitle("Density Plots of Real Illinois Corn Price by Era \n 1947-2006 (82-84=100)") 
+    print(plot1)
+    #+ guides(fill=FALSE)  
+    
+  }
+}, movie.name = "RPreviousErasCorn.gif", img.name = "Rplot", convert = "convert", 
+cmd.fun = system, clean = TRUE, interval = .5, ani.width = 1200, ani.height = 600
+)
+
+
+saveGIF({
+  for(i in 1973:2060){
+    
+    df<-data.frame(Month,comm=factor(rep(c("Corn"),each=815)),Price=Corn, Real=R.Corn, Era=Era, Year=Year)
+    df<-df[which(df$Year <=i & df$Era != "1947 - 1973"), ] #Filter the year for GIF loop
+    plot1<-ggplot(df, aes(x=Real, fill=Era)) +ylim(0,3)  +xlim(1,8) + geom_density(alpha=.3) +theme(axis.text.x = element_text(angle = 0, hjust = 1))+ theme(axis.text.y=element_text(size = rel(2), colour = "black"), axis.text.x=element_text(size = rel(2), colour = "black"), axis.title.x=element_text(size = rel(2)), axis.title.y=element_text(size = rel(2)), plot.title=element_text(size=rel(2))) +xlab("Corn Price $/bu.")+ylab("Density") +ggtitle("Density Plots of Real Illinois Corn Price by Era \n 1973-2014 (82-84=100)") 
+    print(plot1)
+    #+ guides(fill=FALSE)  
+    
+  }
+}, movie.name = "RNewEraCorn.gif", img.name = "Rplot", convert = "convert", 
+cmd.fun = system, clean = TRUE, interval = .5, ani.width = 1200, ani.height = 600
+)
+
+
+
+
